@@ -9,4 +9,11 @@ public static class StringExtensions
 
         return Convert.ToInt32(strInt);
     }
+
+    public static string Reverse(this string str)
+    {
+        var charArray = str.ToCharArray();
+        Array.Reverse(charArray);
+        return new string(charArray);
+    }
 }

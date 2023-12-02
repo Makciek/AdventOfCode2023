@@ -25,24 +25,18 @@ public class Solution : SolutionBase
 
     protected override string GetResult()
     {
-        var result = 0;
-        foreach (var line in this.Lines)
-        {
-            var lineSpan = line.AsSpan();
-            result += GetDecodedValueForLine(lineSpan);
-        }
-
+        var result = this.Lines.Sum(this.GetDecodedValueForLine);
         return result.ToString();
     }
 
-    private int GetDecodedValueForLine(ReadOnlySpan<char> lineSpan)
+    private int GetDecodedValueForLine(string line)
     {
-        var reversed = lineSpan.ToArray().Reverse().ToArray().AsSpan();
-        var reversedReplacedCTestDigits = ReplaceTextDigitsToSingleChars(reversed, stringDigitsReversedKey).ToCharArray().Reverse().ToArray().AsSpan();
-
-        var replacedCTestDigits = ReplaceTextDigitsToSingleChars(lineSpan, stringDigitsOrg).AsSpan();
+        var replacedCTestDigits = ReplaceTextDigitsToSingleChars(line, stringDigitsOrg);
         var first = replacedCTestDigits[0];
-        var last = reversedReplacedCTestDigits[^1];
+
+        var reversedLine = line.Reverse();
+        var reversedReplacedTextDigits = ReplaceTextDigitsToSingleChars(reversedLine, stringDigitsReversedKey).Reverse();
+        var last = reversedReplacedTextDigits[^1];
 
         var numberString = first.ToString() + last.ToString();
         var number = Convert.ToInt32(numberString);

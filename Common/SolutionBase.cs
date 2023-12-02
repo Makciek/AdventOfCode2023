@@ -1,13 +1,8 @@
 ﻿namespace Common;
 
-public abstract class SolutionBase
+public abstract class SolutionBase(string fileName)
 {
-    protected readonly List<string> Lines;
-
-    public SolutionBase(string fileName)
-    {
-        this.Lines = File.ReadAllLines(fileName).ToList();
-    }
+    protected readonly List<string> Lines = File.ReadAllLines(fileName).ToList();
 
     public void Run()
     {
