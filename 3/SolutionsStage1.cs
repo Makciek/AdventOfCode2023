@@ -1,7 +1,6 @@
 ﻿namespace _3;
 
 using Common;
-using System.Drawing;
 
 public class SolutionsStage1(string fileName) : SolutionBase(fileName)
 {
@@ -14,101 +13,67 @@ public class SolutionsStage1(string fileName) : SolutionBase(fileName)
 
     private class EngineSchema
     {
-        private readonly char[][] originalInput;
-        private readonly int lineCount;
-        private readonly int colCount;
+        private readonly AdjacentContinuousBuffer buffer;
 
         private readonly List<PartWithAdjacents> parts = new List<PartWithAdjacents>();
 
         public EngineSchema(IEnumerable<string> lines)
         {
-            this.originalInput = lines
+            var linesArray = lines
                 .Select(line => line.ToCharArray())
                 .ToArray();
-
-            this.lineCount = this.originalInput.Length;
-            this.colCount = this.originalInput[0].Length;
-
-            this.ParseCharsIntoParts();
+            this.buffer = new AdjacentContinuousBuffer(linesArray);
+            this.ParseParts();
         }
 
         public int GetSumfOfParts() => this.parts.Where(p => p.HasAdjacentSymbols).Sum(p => p.PartNumber);
 
-        private void ParseCharsIntoParts()
+        private void ParseParts()
         {
-            var currentNumber = new List<char>();
-            for (int line = 0; line < this.originalInput.Length; line++)
+            var flattenInput = buffer.ReadAll();
+
+            var number = new List<char>();
+            for (int i = 0; i < flattenInput.Count; i++)
             {
-                for (int col = 0; col < this.originalInput[line].Length; col++)
+                var numberChar = flattenInput[i][1];
+                if (char.IsDigit(numberChar))
                 {
-                    var c = this.originalInput[line][col];
-                    if (char.IsDigit(c))
+                    number.Add(numberChar);
+                }
+                else
+                {
+                    if (number.Any())
                     {
-                        currentNumber.Add(c);
+                        var numberStartAdjacentIndex = i - (number.Count + 1);
+                        numberStartAdjacentIndex = numberStartAdjacentIndex < 0 ? 0 : numberStartAdjacentIndex;
+
+                        var adjacentWindowLength = number.Count + 2; // +2 for adjacency
+                        adjacentWindowLength = adjacentWindowLength > flattenInput.Count ? flattenInput.Count : adjacentWindowLength;
+
+                        var symbols = flattenInput
+                            .Slice(numberStartAdjacentIndex, adjacentWindowLength)
+                            .SelectMany(col => col.Where(c => c != '.' && !char.IsDigit(c))).ToList();
+
+                        var part = new PartWithAdjacents()
+                        {
+                            PartNumber = Convert.ToInt32(new string(number.ToArray())),
+                            AdjacentSymbols = symbols
+                        };
+                        this.parts.Add(part);
                     }
-                    else
-                    {
-                        parts.AddIfNotNull(GetNumberAdjacents(line, col, currentNumber));
-                        currentNumber.Clear();
-                    }
+
+                    number.Clear();
                 }
             }
-        }
-
-        private PartWithAdjacents? GetNumberAdjacents(int line, int col, List<char> number)
-        {
-            if (!number.Any()) return null;
-
-            var partNumber = Convert.ToInt32(new string(number.ToArray()));
-
-            var indexOffset = 1;
-            var numberStartPoint = (Line: line, Col: col - number.Count);
-            var adjacentRegionWithoutValidation = (
-                RegionStartLine: numberStartPoint.Line - 1,
-                RegionStartCol: numberStartPoint.Col - 1, 
-                RegionEndLine: numberStartPoint.Line + indexOffset + 1, 
-                RegionEndCol: numberStartPoint.Col + number.Count + 1
-            );
-
-            var adjacentRegion = (
-                RegionStartLine: adjacentRegionWithoutValidation.RegionStartLine > 0 ? adjacentRegionWithoutValidation.RegionStartLine : 0,
-                RegionStartCol: adjacentRegionWithoutValidation.RegionStartCol > 0 ? adjacentRegionWithoutValidation.RegionStartCol : 0,
-                RegionEndLine: adjacentRegionWithoutValidation.RegionEndLine <= this.lineCount ? adjacentRegionWithoutValidation.RegionEndLine : this.lineCount,
-                RegionEndCol: adjacentRegionWithoutValidation.RegionEndCol <= this.colCount ? adjacentRegionWithoutValidation.RegionEndCol : this.colCount
-            );
-
-            return new PartWithAdjacents(partNumber, this.originalInput, adjacentRegion);
         }
     }
 
     private class PartWithAdjacents
     {
         public int PartNumber { get; set; }
-
+        
         public List<char> AdjacentSymbols { get; set; } = new List<char>();
 
         public bool HasAdjacentSymbols => AdjacentSymbols.Any();
-
-        public PartWithAdjacents(int parNumber, char[][] originalInput, (int RegionStartLine, int RegionStartCol, int RegionEndLine, int RegionEndCol) adjacentRegion)
-        {
-            PartNumber = parNumber;
-
-            for (int line = adjacentRegion.RegionStartLine; line < adjacentRegion.RegionEndLine; line++)
-            {
-                for (int col = adjacentRegion.RegionStartCol; col < adjacentRegion.RegionEndCol; col++)
-                {
-                    var c = originalInput[line][col];
-                    if (IsAdjacentSymbol(c))
-                    {
-                        this.AdjacentSymbols.Add(c);
-                    }
-                }
-            }
-        }
-
-        private static bool IsAdjacentSymbol(char symbol)
-        {
-            return !char.IsDigit(symbol) && symbol != '.';
-        }
     }
 }
