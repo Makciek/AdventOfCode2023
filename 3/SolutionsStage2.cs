@@ -31,8 +31,6 @@ public class SolutionsStage2(string fileName) : SolutionBase(fileName)
             this.ParseParts();
         }
 
-        public int GetSumfOfParts() => this.parts.Where(p => p.HasAdjacentSymbols).Sum(p => p.PartNumber);
-
         public int GetGearRatioSum()
         {
             var gearSum = this.parts
@@ -82,6 +80,8 @@ public class SolutionsStage2(string fileName) : SolutionBase(fileName)
                                 var symbolChar = flattenInput[columnIndex][lineIndex];
                                 if (symbolChar != '.' && !char.IsDigit(symbolChar))
                                 {
+                                    // columnIndex / this.originalLineLength = unflatten line index
+                                    // + lineIndex = here we're using actual lines
                                     var lineUnFlatten = columnIndex / this.originalLineLength + lineIndex;
                                     var colUnFlatten = columnIndex % originalLineLength;
 
