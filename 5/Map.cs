@@ -17,7 +17,7 @@ public class Map
             .ToList();
     }
 
-    public int GetTargetValue(int sourceValue)
+    public long GetTargetValue(long sourceValue)
     {
         var map = maps.FirstOrDefault(m => m.SourceStart <= sourceValue && sourceValue < m.SourceStart + m.TransformationRange);
         if (map == null)
@@ -30,22 +30,22 @@ public class Map
 
     private class SingleRangeMap
     {
-        public int TransformationRange { get; init; }
+        public long TransformationRange { get; init; }
 
-        public int SourceStart { get; init; }
+        public long SourceStart { get; init; }
 
-        public int DestinationStart { get; init; }
+        public long DestinationStart { get; init; }
 
         public SingleRangeMap(string line)
         {
             var values = line.Split(' ');
 
-            this.DestinationStart = Convert.ToInt32(values[0]);
-            this.SourceStart = Convert.ToInt32(values[1]);
-            this.TransformationRange = Convert.ToInt32(values[2]);
+            this.DestinationStart = Convert.ToInt64(values[0]);
+            this.SourceStart = Convert.ToInt64(values[1]);
+            this.TransformationRange = Convert.ToInt64(values[2]);
         }
 
-        public int GetTargetValue(int sourceValue)
+        public long GetTargetValue(long sourceValue)
         {
             if (sourceValue < this.SourceStart || sourceValue >= this.SourceStart + this.TransformationRange)
             {

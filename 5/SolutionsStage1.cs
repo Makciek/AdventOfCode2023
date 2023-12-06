@@ -26,7 +26,7 @@ public class SolutionsStage1(string fileName) : SolutionBase(fileName)
             ExtractSeeds(lines);
         }
 
-        public int GetClosestLocation()
+        public long GetClosestLocation()
         {
             return Seeds.OrderBy(s => s.LocationNumber).First().LocationNumber;
         }
@@ -36,7 +36,7 @@ public class SolutionsStage1(string fileName) : SolutionBase(fileName)
             var seedNumbers = lines[0].Replace("seeds: ", string.Empty).Split(" ");
             ExtractMaps(lines);
 
-            Seeds = seedNumbers.Select(s => new Seed(Convert.ToInt32(s), Maps)).ToList();
+            Seeds = seedNumbers.Select(s => new Seed(Convert.ToInt64(s), Maps)).ToList();
         }
 
         private void ExtractMaps(string[] lines)
@@ -72,11 +72,11 @@ public class SolutionsStage1(string fileName) : SolutionBase(fileName)
 
     private class Seed
     {
-        public int SeedNumber { get; private set; }
+        public long SeedNumber { get; private set; }
 
-        public int LocationNumber { get; private set; }
+        public long LocationNumber { get; private set; }
 
-        public Seed(int seedNumber, List<Map> mapsOrdered)
+        public Seed(long seedNumber, List<Map> mapsOrdered)
         {
             SeedNumber = seedNumber;
 
