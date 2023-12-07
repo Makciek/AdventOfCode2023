@@ -8,12 +8,19 @@ public abstract class SolutionBase(string fileName)
 
     public void Run()
     {
+        this.RunAsync().Wait();
+    }
+
+    public async Task RunAsync()
+    {
         Stopwatch sw = Stopwatch.StartNew();
-        var result = this.GetResult();
+        var result = await this.GetResultAsync();
         sw.Stop();
         Console.WriteLine($"Result: {result} in {sw.ElapsedMilliseconds}ms");
         Console.ReadLine();
     }
 
-    protected abstract string GetResult();
+    protected virtual string GetResult() => string.Empty;
+
+    protected virtual async Task<string> GetResultAsync() => string.Empty;
 }

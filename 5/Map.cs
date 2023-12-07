@@ -19,41 +19,14 @@ public class Map
 
     public long GetTargetValue(long sourceValue)
     {
-        var map = maps.FirstOrDefault(m => m.SourceStart <= sourceValue && sourceValue < m.SourceStart + m.TransformationRange);
-        if (map == null)
+        for (int i = 0; i < maps.Count; i++)
         {
-            return sourceValue;
-        }
-
-        return map.GetTargetValue(sourceValue);
-    }
-
-    private class SingleRangeMap
-    {
-        public long TransformationRange { get; init; }
-
-        public long SourceStart { get; init; }
-
-        public long DestinationStart { get; init; }
-
-        public SingleRangeMap(string line)
-        {
-            var values = line.Split(' ');
-
-            this.DestinationStart = Convert.ToInt64(values[0]);
-            this.SourceStart = Convert.ToInt64(values[1]);
-            this.TransformationRange = Convert.ToInt64(values[2]);
-        }
-
-        public long GetTargetValue(long sourceValue)
-        {
-            if (sourceValue < this.SourceStart || sourceValue >= this.SourceStart + this.TransformationRange)
+            if (maps[i].SourceStart <= sourceValue && sourceValue < maps[i].SourceEnd)
             {
-                return sourceValue;
+                return maps[i].GetTargetValue(sourceValue);
             }
-
-            var sourceValueOffsetFromSourceStart = sourceValue - this.SourceStart;
-            return this.DestinationStart + sourceValueOffsetFromSourceStart;
         }
+
+        return sourceValue;
     }
 }

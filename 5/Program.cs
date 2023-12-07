@@ -1,4 +1,4 @@
 ﻿using _5;
 
-new SolutionsStage1("input.txt")
-    .Run();
+await new SolutionsStage2("input.txt")
+    .RunAsync();
