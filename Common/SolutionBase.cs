@@ -8,7 +8,11 @@ public abstract class SolutionBase(string fileName)
 
     public void Run()
     {
-        this.RunAsync().Wait();
+        Stopwatch sw = Stopwatch.StartNew();
+        var result = this.GetResult();
+        sw.Stop();
+        Console.WriteLine($"Result: {result} in {sw.ElapsedMilliseconds}ms");
+        Console.ReadLine();
     }
 
     public async Task RunAsync()
