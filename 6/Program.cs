@@ -1,4 +1,4 @@
 ﻿using _6;
 
-new SolutionsStage1("input.txt")
+new SolutionsStage2("example.txt")
     .Run();
