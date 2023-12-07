@@ -2,10 +2,10 @@
 
 public class RaceNoValueGenerator
 {
-    public int RaceDuration { get; set; }
-    public int RecordDistance { get; set; }
+    public long RaceDuration { get; set; }
+    public long RecordDistance { get; set; }
 
-    public int GetWiningDurationsCount()
+    public long GetWiningDurationsCount()
     {
         // Distance:
         // Distance = (RaceDuration - PushDuration) * PushDuration
@@ -27,8 +27,8 @@ public class RaceNoValueGenerator
         var x1 = (RaceDuration + Math.Sqrt(delta)) / 2;
         var x2 = (RaceDuration - Math.Sqrt(delta)) / 2;
 
-        var x1UpperBound = (int)Math.Ceiling(x1);
-        var x2LowerBound = (int)Math.Floor(x2) + 1;
+        var x1UpperBound = (long)Math.Ceiling(x1);
+        var x2LowerBound = (long)Math.Floor(x2) + 1;
 
         var length = x1UpperBound - x2LowerBound;
 

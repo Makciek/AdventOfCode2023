@@ -13,12 +13,12 @@ public class RaceGame2
             .Replace("Distance:", string.Empty)
             .Replace(" ", string.Empty);
 
-        Races.Add(new RaceNoValueGenerator() { RaceDuration = Convert.ToInt32(duration), RecordDistance = Convert.ToInt32(record) });
+        Races.Add(new RaceNoValueGenerator() { RaceDuration = Convert.ToInt64(duration), RecordDistance = Convert.ToInt64(record) });
     }
 
-    public int GetErrorMargin()
+    public long GetErrorMargin()
     {
-        var result = 1;
+        long result = 1;
         foreach (var race in Races)
         {
             result *= race.GetWiningDurationsCount();
