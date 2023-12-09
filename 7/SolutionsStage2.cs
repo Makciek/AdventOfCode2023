@@ -53,7 +53,7 @@ public class SolutionsStage2(string fileName) : SolutionBase(fileName)
     });
 }
 
-[DebuggerDisplay("{Type} {HandCards}")]
+[DebuggerDisplay("{Type} {DebuggerCardsJoker} {DebuggerCards}")]
 public class Hand2
 {
     private static string labelsInOrderOfPower = "AKQT98765432J";
@@ -63,6 +63,8 @@ public class Hand2
             .ToDictionary(x => x.c, x => x.power);
 
     private readonly List<Card> cards = new List<Card>();
+    public string DebuggerCardsJoker => string.Join(" ", cards.Select(c => $"{c.Label}({c.CountWithJokers})"));
+    public string DebuggerCards => string.Join("", HandCards);
 
     public List<char> HandCards { get; init; } = new List<char>();
     public List<int> HandCardPowers { get; init; } = new List<int>();
@@ -93,42 +95,59 @@ public class Hand2
             HandCardPowers.Add(cardLabelToPowerDictionary[cardLabel]);
         }
 
-        var jokerCount = this.cards.SingleOrDefault(c => c.Label == 'J')?.Count ?? 0;
+        var jokerCard = this.cards.SingleOrDefault(c => c.Label == 'J');
+        var jokerCount = jokerCard?.Count ?? 0;
+        if (jokerCard is not null)
+        {
+            jokerCard.CountWithJokers = jokerCount;
+        }
 
-        var cardsCount = this.cards.Count;
-        if (cardsCount == 1 || (cardsCount == 2 && jokerCount > 0)) // 5
+        foreach (var nonJokerCard in this.cards.Where(c => c.Label != 'J'))
+        {
+            nonJokerCard.CountWithJokers = nonJokerCard.Count + jokerCount;
+        }
+
+        var cardsByJokerCount = this.cards.OrderByDescending(c => c.CountWithJokers).ToList();
+        if (cardsByJokerCount[0].CountWithJokers == 5) // 5
         {
             Type = HandType2.FiveOfAKind;
             return;
         }
-
-        var cardsByCount = this.cards.OrderByDescending(c => c.Count).ToList();
-        var maxCardsCount = cardsByCount[0];
-        if (maxCardsCount.Count == 4 || maxCardsCount.Count + jokerCount == 4) // 4
+        if (cardsByJokerCount[0].CountWithJokers == 4) // 4
         {
             Type = HandType2.FourOfAKind;
             return;
         }
-
-        if ((cardsCount == 2 && maxCardsCount.Count == 3)
-            || (cardsCount == 3 && (maxCardsCount.Count == 3 && cardsByCount[1].Count + jokerCount == 2))
-            || (cardsCount == 3 && (maxCardsCount.Count == 2 && cardsByCount[1].Count + jokerCount == 3))) // Full house
+        if ((cardsByJokerCount[0].Count == 3 && cardsByJokerCount[1].Count == 2) ||
+            (jokerCount == 1 && cardsByJokerCount[0].CountWithJokers == 3 && cardsByJokerCount[1].Count == 2)||
+            (jokerCount == 1 && cardsByJokerCount[0].Count == 3 && cardsByJokerCount[1].CountWithJokers == 2)||
+            (jokerCount == 2 && cardsByJokerCount[0].CountWithJokers == 3 && cardsByJokerCount[1].CountWithJokers == 2)) // Full house
         {
             Type = HandType2.FullHouse;
             return;
         }
-
-        if (maxCardsCount.Count == 3 || maxCardsCount.Count + jokerCount == 3) // 3
+        if (cardsByJokerCount[0].CountWithJokers == 3) // 3
         {
             Type = HandType2.ThreeOfAKind;
             return;
         }
 
-
-        var pairsCount = this.cards.Count(c => c.Count == 2);
+        var pairsCount = this.cards.Count(c => c.CountWithJokers == 2);
         if (pairsCount != 0) // 1 & 2 pairs
         {
-            Type = (HandType2)pairsCount;
+            var pairsWithoutJoker = this.cards.Count(c => c.Count == 2);
+            if (pairsWithoutJoker == 0 && jokerCount == 1)
+            {
+                Type = HandType2.Pair;
+            }
+            else if (pairsWithoutJoker == 1 && jokerCount == 0)
+            {
+                Type = HandType2.Pair;
+            }
+            else
+            {
+                Type = HandType2.TwoPairs;
+            }
             return;
         }
 
@@ -139,6 +158,7 @@ public class Hand2
     {
         public char Label { get; set; }
         public int Count { get; set; }
+        public int CountWithJokers { get; set; }
     }
 }
 
